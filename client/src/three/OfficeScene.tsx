@@ -1,7 +1,9 @@
 import { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Mesh, BoxGeometry, CylinderGeometry, MeshStandardMaterial, IcosahedronGeometry, WireframeGeometry, LineSegments, Group } from 'three';
-import { OrbitControls, Float, Text, MeshTransmissionMaterial } from '@react-three/drei';
+import { OrbitControls, Float, Text, MeshTransmissionMaterial, OrthographicCamera } from '@react-three/drei';
+import SimpleAgent3D from './SimpleAgent3D';
+import { useAgents } from '../store/useStore';
 
 // 建筑颜色定义
 const BUILDING_COLORS = {
@@ -218,6 +220,39 @@ const MingDynastyBuilding = () => {
       <OfficeRoom position={[5, 0, 0]} name="设计室" />
       <OfficeRoom position={[0, 0, -5]} name="音频室" />
       <OfficeRoom position={[0, 3, 0]} name="总监办公室" size={[4, 2, 4]} />
+      
+      {/* SimpleAgent3D角色 */}
+      {tangbohuAgent && (
+        <SimpleAgent3D 
+          position={[0, 3.5, 0]} 
+          name="唐伯虎" 
+          status={tangbohuAgent.status}
+        />
+      )}
+      
+      {zhuzhishanAgent && (
+        <SimpleAgent3D 
+          position={[-5, 0.5, 0]} 
+          name="祝枝山" 
+          status={zhuzhishanAgent.status}
+        />
+      )}
+      
+      {qiuxiangAgent && (
+        <SimpleAgent3D 
+          position={[5, 0.5, 0]} 
+          name="秋香" 
+          status={qiuxiangAgent.status}
+        />
+      )}
+      
+      {shiliujieAgent && (
+        <SimpleAgent3D 
+          position={[0, 0.5, -5]} 
+          name="石榴姐" 
+          status={shiliujieAgent.status}
+        />
+      )}
 
       {/* 中央大厅全息数据球 */}
       <HologramSphere />
@@ -231,8 +266,29 @@ const MingDynastyBuilding = () => {
   );
 };
 
+// 等距视角相机组件
+const OrthoCam = ({ makeDefault = false, position = [20, 20, 20] as [number, number, number], zoom = 50 }) => {
+  return (
+    <OrthographicCamera
+      makeDefault={makeDefault}
+      position={position}
+      zoom={zoom}
+      near={0.1}
+      far={1000}
+    />
+  );
+};
+
 // 主场景组件
 const OfficeScene = () => {
+  const agents = useAgents();
+  
+  // 获取各个Agent的状态
+  const tangbohuAgent = agents.find(a => a.id === 'tangbohu');
+  const zhuzhishanAgent = agents.find(a => a.id === 'zhuzhishan');
+  const qiuxiangAgent = agents.find(a => a.id === 'qiuxiang');
+  const shiliujieAgent = agents.find(a => a.id === 'shiliujie');
+  
   return (
     <Canvas shadows camera={{ position: [15, 15, 15], fov: 50 }}>
       {/* 等距视角相机 */}
